@@ -42,8 +42,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-# idea files
-.idea
+# lockfile
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
 
-# vscode files
-/.vscode/cspell.json
+# drizzle
+/drizzle
