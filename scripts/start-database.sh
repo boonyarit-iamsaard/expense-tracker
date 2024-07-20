@@ -9,7 +9,30 @@
 
 # On Linux and macOS you can run this script directly - `./start-database.sh`
 
-DB_CONTAINER_NAME="expense-tracker-postgres"
+# Import env variables from .env
+set -a
+source .env
+
+# Function to validate required environment variables
+validate_env() {
+  local missing_vars=()
+  for var in "$@"; do
+    if [ -z "${!var}" ]; then
+      missing_vars+=("$var")
+    fi
+  done
+
+  if [ ${#missing_vars[@]} -ne 0 ]; then
+    echo "Error: The following environment variables are not set: ${missing_vars[*]}"
+    exit 1
+  fi
+}
+
+# Validate required environment variables
+validate_env DB_CONTAINER_NAME DB_VOLUME_NAME DATABASE_URL
+
+DB_CONTAINER_NAME=$DB_CONTAINER_NAME
+DB_VOLUME_NAME=$DB_VOLUME_NAME
 
 if ! [ -x "$(command -v docker)" ]; then
   echo -e "Docker is not installed. Please install docker and try again.\nDocker install guide: https://docs.docker.com/engine/install/"
@@ -26,10 +49,6 @@ if [ "$(docker ps -q -a -f name=$DB_CONTAINER_NAME)" ]; then
   echo "Existing database container '$DB_CONTAINER_NAME' started"
   exit 0
 fi
-
-# import env variables from .env
-set -a
-source .env
 
 DB_PASSWORD=$(echo "$DATABASE_URL" | awk -F':' '{print $3}' | awk -F'@' '{print $1}')
 DB_PORT=$(echo "$DATABASE_URL" | awk -F':' '{print $4}' | awk -F'\/' '{print $1}')
@@ -51,5 +70,6 @@ docker run -d \
   -e POSTGRES_USER="postgres" \
   -e POSTGRES_PASSWORD="$DB_PASSWORD" \
   -e POSTGRES_DB=expense-tracker \
+  -v $DB_VOLUME_NAME:/var/lib/postgresql/data \
   -p "$DB_PORT":5432 \
   docker.io/postgres && echo "Database container '$DB_CONTAINER_NAME' was successfully created"
