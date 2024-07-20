@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # Check for commit message formatting
 echo "🔎 Checking commit message formatting...";
 npx --no -- commitlint --edit "$1" ||
