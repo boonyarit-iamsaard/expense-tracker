@@ -1,14 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+
+import { Loader2 } from 'lucide-react';
+import { signOut, useSession } from 'next-auth/react';
 
 import { Icons } from '@/components/icons';
-import { buttonVariants } from '@/components/ui/button';
-import { cn } from '@/libs/utils/cn';
+import { Button } from '@/components/ui/button';
 
 export function SiteHeader() {
-  const pathname = usePathname();
+  const { status } = useSession();
+
+  // TODO: improve sign out experience with a loading state and redirect from the protected route
 
   return (
     <header className="sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -22,37 +25,32 @@ export function SiteHeader() {
           </Link>
 
           <nav className="flex items-center gap-4 text-sm lg:gap-6">
-            {pathname?.startsWith('/login') ? null : (
-              <Link
-                href="/login"
-                className={cn(
-                  'transition-colors hover:text-foreground/80',
-                  pathname?.startsWith('/login')
-                    ? 'text-foreground'
-                    : 'text-foreground/60',
-                )}
-              >
-                Login
-              </Link>
+            {/* TODO: improve this conditional rendering */}
+            {status === 'loading' ? (
+              <div className="flex h-8 w-8 items-center justify-center">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="sr-only">Loading</span>
+              </div>
+            ) : status === 'unauthenticated' ? (
+              <Button asChild variant="ghost" className="h-8">
+                <Link href="/login">Login</Link>
+              </Button>
+            ) : (
+              <Button onClick={() => signOut()} variant="ghost" className="h-8">
+                Logout
+              </Button>
             )}
 
-            <Link
-              href="https://github.com/boonyarit-iamsaard/expense-tracker"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div
-                className={cn(
-                  buttonVariants({
-                    variant: 'ghost',
-                  }),
-                  'h-8 w-8 px-0',
-                )}
+            <Button asChild variant="ghost" className="h-8 w-8 px-0">
+              <Link
+                href="https://github.com/boonyarit-iamsaard/expense-tracker"
+                target="_blank"
+                rel="noreferrer"
               >
                 <Icons.gitHub className="h-4 w-4" />
                 <span className="sr-only">GitHub</span>
-              </div>
-            </Link>
+              </Link>
+            </Button>
           </nav>
         </div>
       </div>

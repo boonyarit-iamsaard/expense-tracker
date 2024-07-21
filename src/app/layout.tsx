@@ -3,6 +3,7 @@ import '@/styles/globals.css';
 import { ReactNode } from 'react';
 import { type Metadata } from 'next';
 
+import { NextAuthProvider } from '@/providers/next-auth-provider';
 import { TRPCReactProvider } from '@/trpc/react';
 
 import { cn } from '@/libs/utils/cn';
@@ -28,7 +29,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontSans.variable,
         )}
       >
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <NextAuthProvider>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );
